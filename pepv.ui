@@ -84,6 +84,7 @@
                 <property name="primary-icon-activatable">False</property>
                 <property name="primary-icon-sensitive">False</property>
                 <property name="placeholder-text" translatable="yes">Search term</property>
+                <signal name="activate" handler="on_applyFilters_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">0</property>
