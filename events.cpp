@@ -6,7 +6,6 @@
 #include <string>
 #include <thread>
 
-#include <Tracy/tracy/Tracy.hpp>
 #include <tracy/Tracy.hpp>
 
 GtkTreeSelection* selection = nullptr;
