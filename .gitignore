@@ -1,0 +1,12 @@
+.vscode
+.idea
+
+compile_commands.json
+build/
+.cache
+*.glade~
+*.glade#
+*.gui~
+*.gui#
+*.ui~
+*.ui#
