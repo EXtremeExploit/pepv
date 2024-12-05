@@ -38,3 +38,6 @@
 # I dont know how to code but i want to use this program.
 * Follow the instructions above, you dont need to understand them
 * If you are scared of basic computer usage then you can wait for someone to package this program in your arch-based distro and i may add it in this readme
+
+# Installing
+* AUR: https://aur.archlinux.org/packages/pepv-git
