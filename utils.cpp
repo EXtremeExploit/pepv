@@ -51,7 +51,7 @@ std::string setToStr(std::set<std::string> s, const char* delimeter) {
 
 std::string optDependsToStr(std::set<std::string> s) {
 	ZoneScopedN("optDependsToStr");
-	static constexpr std::string optDependsKey = "Opt. depends: ";
+	static constexpr std::string_view optDependsKey = "Opt. depends: ";
 	std::stringstream ss;
 	ss << optDependsKey;
 	int i = 0;
@@ -75,6 +75,31 @@ std::string optDependsToStr(std::set<std::string> s) {
 		}
 
 		ss << *it << installedFlag << "\n";
+	}
+	return ss.str();
+}
+
+std::string optRequiredByToStr(std::set<std::string> s) {
+	ZoneScopedN("optRequiredByToStr");
+	static constexpr std::string_view key = "Opt. Required by: ";
+	std::stringstream ss;
+	ss << key;
+	int i = 0;
+
+	constexpr auto suffixLen   = key.size();
+	char suffix[suffixLen + 1] = {};
+	memset(suffix, ' ', suffixLen);
+
+	const auto names = p->getPackagesNames();
+	for (auto it = s.begin(); it != s.end(); ++it) {
+		i++;
+		if (i != 1)
+			ss << suffix;
+
+		const auto a    = *it;
+		const auto name = a.substr(0, a.find(":"));
+
+		ss << *it << "\n";
 	}
 	return ss.str();
 }

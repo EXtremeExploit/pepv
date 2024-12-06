@@ -174,6 +174,10 @@ std::pair<std::map<std::string, PackageDescription>, bool> Pkgs::getDescriptions
 			if (pkgsDescs.contains(dep))
 				pkgsDescs.at(dep).requiredBy.insert(pkg.first);
 		}
+		for (auto& dep : pkg.second.optDepends) {
+			if (pkgsDescs.contains(dep))
+				pkgsDescs.at(dep).optRequiredBy.insert(pkg.first);
+		}
 	}
 
 	descriptions = pkgsDescs;

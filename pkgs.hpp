@@ -82,7 +82,8 @@ struct PackageDescription {
 	std::set<std::string> optDepends;
 	std::set<std::string> provides;
 	std::optional<std::string> xdata;
-    std::set<std::string> requiredBy;
+	std::set<std::string> requiredBy;
+	std::set<std::string> optRequiredBy;
 	bool isLocal = false; // AUR / self-packaged
 };
 
@@ -96,8 +97,7 @@ class Pkgs {
 	std::map<std::string, std::map<std::string, std::string>> backupFiles;
 
 	public:
-
-    std::set<std::string> getPackagesNames();
+	std::set<std::string> getPackagesNames();
 
 	std::pair<std::map<std::string, PackageDescription>, bool> getDescriptions();
 	std::pair<std::map<std::string, std::set<std::string>>, bool> getFiles();

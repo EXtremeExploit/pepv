@@ -81,6 +81,10 @@ void updatePkgInfo() {
 			const auto s = optDependsToStr(pkg.optDepends);
 			infoss << s << std::endl;
 		}
+		if (pkg.optRequiredBy.size()) {
+			const auto s = optRequiredByToStr(pkg.optRequiredBy);
+			infoss << s << std::endl;
+		}
 
 		if (pkg.provides.size()) {
 			const auto s = setToStr(pkg.provides);
