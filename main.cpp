@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 
 	p->getFiles();
 	populatePkgList();
-    updateTotalPackagesLabel();
+	updateTotalPackagesLabel();
 
 	gtk_widget_show(GTK_WIDGET(window));
 

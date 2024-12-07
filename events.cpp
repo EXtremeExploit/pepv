@@ -3,6 +3,7 @@
 #include "gtk/gtk.h"
 #include "pkgs.hpp"
 #include "utils.hpp"
+#include <iostream>
 #include <string>
 #include <thread>
 
@@ -18,83 +19,87 @@ void updatePkgInfo() {
 	static auto infoBuffer = gtk_text_view_get_buffer(gPkgInfo);
 
 	const auto desc = p->getDescriptionForPackage(selected);
-	if (desc.first) {
-		const auto pkg = desc.second;
-		std::stringstream infoss;
-		infoss << "Name: " << pkg.name << std::endl;
-		infoss << "Version: " << pkg.version << std::endl;
-		if (pkg.base.has_value())
-			infoss << "Base: " << pkg.base.value() << std::endl;
 
-		if (pkg.desc.has_value())
-			infoss << "Description: " << pkg.desc.value() << std::endl;
-		if (pkg.url.has_value())
-			infoss << "URL: " << pkg.url.value() << std::endl;
-		if (pkg.arch.has_value())
-			infoss << "Arch: " << pkg.arch.value() << std::endl;
-		if (pkg.buildDate.has_value()) {
-			auto bdss = formattedTimestamp(pkg.buildDate.value());
-			infoss << "Build date: " << bdss.c_str() << std::endl;
-		}
-		if (pkg.installDate.has_value()) {
-			auto idss = formattedTimestamp(pkg.installDate.value());
-			infoss << "Install date: " << idss.c_str() << std::endl;
-		}
-		if (pkg.packager.has_value())
-			infoss << "Packager: " << pkg.packager.value() << std::endl;
-		if (pkg.size.has_value()) {
-			const auto s = formattedSize(pkg.size.value());
-			infoss << "Size: " << s.c_str() << " (" << pkg.size.value() << " Bytes)" << std::endl;
-		}
-		infoss << "Reason: " << reasonToStr(pkg.reason) << std::endl;
-
-		if (pkg.groups.size()) {
-			const auto s = setToStr(pkg.groups);
-			infoss << "Groups: " << s << std::endl;
-		}
-
-		if (pkg.license.has_value())
-			infoss << "License: " << pkg.license.value() << std::endl;
-		if (pkg.validation.has_value())
-			infoss << "Validation: " << pkg.validation.value() << std::endl;
-
-		if (pkg.replaces.size()) {
-			const auto s = setToStr(pkg.replaces);
-			infoss << "Replaces: " << s << std::endl;
-		}
-
-		if (pkg.depends.size()) {
-			const auto s = setToStr(pkg.depends);
-			infoss << "Depends: " << s << std::endl;
-		}
-
-		if (pkg.requiredBy.size()) {
-			const auto s = setToStr(pkg.requiredBy);
-			infoss << "Required by: " << s << std::endl;
-		}
-
-		if (pkg.conflicts.size()) {
-			const auto s = setToStr(pkg.conflicts);
-			infoss << "Conflicts: " << s << std::endl;
-		}
-		if (pkg.optDepends.size()) {
-			const auto s = optDependsToStr(pkg.optDepends);
-			infoss << s << std::endl;
-		}
-		if (pkg.optRequiredBy.size()) {
-			const auto s = optRequiredByToStr(pkg.optRequiredBy);
-			infoss << s << std::endl;
-		}
-
-		if (pkg.provides.size()) {
-			const auto s = setToStr(pkg.provides);
-			infoss << "Provides: " << s << std::endl;
-		}
-
-		const auto infoStr = infoss.str();
-		gtk_text_buffer_set_text(infoBuffer, infoStr.c_str(), infoStr.length());
-		gtk_text_view_set_buffer(gPkgInfo, infoBuffer);
+	if (!desc.first) {
+		std::cout << "Couldnt get description for pkg: " << selected << std::endl;
+		return;
 	}
+
+	const auto pkg = desc.second;
+	std::stringstream infoss;
+	infoss << "Name: " << pkg.name << std::endl;
+	infoss << "Version: " << pkg.version << std::endl;
+	if (pkg.base.has_value())
+		infoss << "Base: " << pkg.base.value() << std::endl;
+
+	if (pkg.desc.has_value())
+		infoss << "Description: " << pkg.desc.value() << std::endl;
+	if (pkg.url.has_value())
+		infoss << "URL: " << pkg.url.value() << std::endl;
+	if (pkg.arch.has_value())
+		infoss << "Arch: " << pkg.arch.value() << std::endl;
+	if (pkg.buildDate.has_value()) {
+		auto bdss = formattedTimestamp(pkg.buildDate.value());
+		infoss << "Build date: " << bdss.c_str() << std::endl;
+	}
+	if (pkg.installDate.has_value()) {
+		auto idss = formattedTimestamp(pkg.installDate.value());
+		infoss << "Install date: " << idss.c_str() << std::endl;
+	}
+	if (pkg.packager.has_value())
+		infoss << "Packager: " << pkg.packager.value() << std::endl;
+	if (pkg.size.has_value()) {
+		const auto s = formattedSize(pkg.size.value());
+		infoss << "Size: " << s.c_str() << " (" << pkg.size.value() << " Bytes)" << std::endl;
+	}
+	infoss << "Reason: " << reasonToStr(pkg.reason) << std::endl;
+
+	if (pkg.groups.size()) {
+		const auto s = setToStr(pkg.groups);
+		infoss << "Groups: " << s << std::endl;
+	}
+
+	if (pkg.license.has_value())
+		infoss << "License: " << pkg.license.value() << std::endl;
+	if (pkg.validation.has_value())
+		infoss << "Validation: " << pkg.validation.value() << std::endl;
+
+	if (pkg.replaces.size()) {
+		const auto s = setToStr(pkg.replaces);
+		infoss << "Replaces: " << s << std::endl;
+	}
+
+	if (pkg.depends.size()) {
+		const auto s = setToStr(pkg.depends);
+		infoss << "Depends: " << s << std::endl;
+	}
+
+	if (pkg.requiredBy.size()) {
+		const auto s = setToStr(pkg.requiredBy);
+		infoss << "Required by: " << s << std::endl;
+	}
+
+	if (pkg.conflicts.size()) {
+		const auto s = setToStr(pkg.conflicts);
+		infoss << "Conflicts: " << s << std::endl;
+	}
+	if (pkg.optDepends.size()) {
+		const auto s = optDependsToStr(pkg.optDepends);
+		infoss << s << std::endl;
+	}
+	if (pkg.optRequiredBy.size()) {
+		const auto s = optRequiredByToStr(pkg.optRequiredBy);
+		infoss << s << std::endl;
+	}
+
+	if (pkg.provides.size()) {
+		const auto s = setToStr(pkg.provides);
+		infoss << "Provides: " << s << std::endl;
+	}
+
+	const auto infoStr = infoss.str();
+	gtk_text_buffer_set_text(infoBuffer, infoStr.c_str(), infoStr.length());
+	gtk_text_view_set_buffer(gPkgInfo, infoBuffer);
 }
 
 void updatePkgFiles() {
@@ -176,8 +181,10 @@ void populatePkgList() {
 		const std::string tracyArgs = "Package: " + e;
 		_tracy_zone_populate_package.Text(tracyArgs.c_str(), tracyArgs.size());
 		const auto pkgDescRes = p->getDescriptionForPackage(e);
-		if (!pkgDescRes.first)
+		if (!pkgDescRes.first) {
+			std::cout << "Couldnt get description for pkg: " << e << std::endl;
 			continue;
+		}
 		const auto pkg = pkgDescRes.second;
 
 		if (!fromOfficial && !pkg.isLocal) continue;
