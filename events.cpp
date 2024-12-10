@@ -1,11 +1,9 @@
 #include "events.hpp"
 
-#include "gtk/gtk.h"
 #include "pkgs.hpp"
 #include "utils.hpp"
+
 #include <iostream>
-#include <string>
-#include <thread>
 
 #include <tracy/Tracy.hpp>
 

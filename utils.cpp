@@ -1,4 +1,7 @@
 #include "utils.hpp"
+
+#include <cmath>
+
 #include <tracy/Tracy.hpp>
 
 std::string formattedTimestamp(const time_t t) {

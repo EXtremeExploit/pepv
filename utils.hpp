@@ -1,7 +1,5 @@
 #pragma once
 #include "pkgs.hpp"
-#include <ctime>
-#include <cmath>
 
 extern Pkgs* p;
 

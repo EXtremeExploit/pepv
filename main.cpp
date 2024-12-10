@@ -1,18 +1,9 @@
 #include "pkgs.hpp"
 #include "events.hpp"
 
-#include <array>
-#include <tracy/Tracy.hpp>
-#include <cmath>
-#include <cstddef>
-#include <filesystem>
-#include <gtk/gtk.h>
-
-#include <cstdio>
-#include <cstring>
-#include <ctime>
 #include <iostream>
-#include <string>
+
+#include <tracy/Tracy.hpp>
 
 GtkBuilder* builder;
 GtkTreeStore* treeStore;
