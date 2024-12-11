@@ -501,8 +501,8 @@
                         <property name="resizable">True</property>
                         <property name="sizing">fixed</property>
                         <property name="title" translatable="yes">Files</property>
+                        <property name="clickable">True</property>
                         <property name="reorderable">True</property>
-                        <property name="sort-indicator">True</property>
                         <property name="sort-column-id">6</property>
                         <child>
                           <object class="GtkCellRendererText" id="cx6"/>
