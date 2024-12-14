@@ -132,9 +132,9 @@ void updatePkgBackupFiles() {
 
 bool populationIsHappening = false;
 void populatePkgList() {
+	ZoneScopedN("populatePkgList");
 	if (!selection)
 		selection = GTK_TREE_SELECTION(gtk_builder_get_object(builder, "select"));
-	ZoneScopedN("populatePkgList");
 	if (!treeStore)
 		treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
 
@@ -241,6 +241,7 @@ void on_reload_button_clicked(GtkButton* b) {
 	p->clear();
 
 	populatePkgList();
+	updateTotalPackagesLabel();
 }
 
 void on_select_changed(GtkWidget* c) {
