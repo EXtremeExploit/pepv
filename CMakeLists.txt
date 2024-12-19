@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(pepv VERSION 0.1.0 LANGUAGES C CXX)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -28,5 +27,5 @@ add_definitions(${GTK3_CFLAGS_OTHER})
 
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
-add_executable(pepv main.cpp pkgs.cpp utils.cpp events.cpp)
+add_executable(pepv src/main.cpp src/pkgs.cpp src/utils.cpp src/events.cpp)
 target_link_libraries(pepv PRIVATE ${GTK3_LIBRARIES} Tracy::TracyClient)

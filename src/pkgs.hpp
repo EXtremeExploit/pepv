@@ -104,8 +104,5 @@ class Pkgs {
 	std::set<std::string> getFilesForPackage(const std::string& pkg);
 	std::map<std::string, std::string> getBackupFilesForPackage(const std::string& pkg);
 
-	std::map<std::string, PackageDescription> getDescriptionsUnsafe();
-	std::map<std::string, std::set<std::string>> getFilesUnsafe();
-
 	void clear();
 };

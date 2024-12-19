@@ -246,7 +246,7 @@ void on_reload_button_clicked(GtkButton* b) {
 
 void on_select_changed(GtkWidget* c) {
 	ZoneScopedN("on_select_changed");
-	if (populationIsHappening) return;
+	if (populationIsHappening) return; // Even when there is nothing selected this function will still be called, dont want that
 	gchar* value;
 	GtkTreeIter iter;
 	GtkTreeModel* model;

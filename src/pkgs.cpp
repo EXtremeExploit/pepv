@@ -1,5 +1,8 @@
 #include "pkgs.hpp"
 
+#include <algorithm>
+#include <cstdio>
+#include <execution>
 #include <iostream>
 
 #include <tracy/Tracy.hpp>
@@ -45,6 +48,9 @@ std::pair<std::map<std::string, PackageDescription>, bool> Pkgs::getDescriptions
 	std::map<std::string, PackageDescription> pkgsDescs;
 
 	for (const auto& path : tempPkgsPaths) {
+		ZoneNamedN(___tracy_get_descs_pkg, "get package description", true);
+		auto tracyArgs = "Path: " + path.string();
+		___tracy_get_descs_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
 		auto currentSection = SECTION_DESC_NONE;
 
 		const auto descPath = this->dbPath / path / "desc";
@@ -57,7 +63,7 @@ std::pair<std::map<std::string, PackageDescription>, bool> Pkgs::getDescriptions
 			charCurrentLine[strcspn(charCurrentLine, "\n")] = 0;
 			auto currentLine                                = std::string_view(charCurrentLine);
 			if (currentLine == "") continue;
-			if (currentLine.starts_with("%") && currentLine.ends_with("%")) {
+			if (currentLine.starts_with('%') && currentLine.ends_with('%')) {
 				currentSection = SECTION_DESC_NONE;
 				if (currentLine == "%NAME%") currentSection = SECTION_DESC_NAME;
 				if (currentLine == "%VERSION%") currentSection = SECTION_DESC_VERSION;
@@ -195,6 +201,9 @@ std::pair<std::map<std::string, std::set<std::string>>, bool> Pkgs::getFiles() {
 	std::map<std::string, std::set<std::string>> pkgsFiles;
 	std::map<std::string, std::map<std::string, std::string>> pkgsBackupFiles;
 	for (const auto& [name, path] : pkgPaths) {
+		ZoneNamedN(___tracy_get_files_pkg, "get package files", true);
+		auto tracyArgs = "Name: " + name;
+		___tracy_get_files_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
 		auto currentSection = SECTION_FILES_NONE;
 
 		const auto descPath = this->dbPath / path / "files";
@@ -208,7 +217,7 @@ std::pair<std::map<std::string, std::set<std::string>>, bool> Pkgs::getFiles() {
 			charCurrentLine[strcspn(charCurrentLine, "\n")] = 0;
 			auto currentLine                                = std::string(charCurrentLine);
 			if (currentLine == "") continue;
-			if (currentLine.starts_with("%") && currentLine.ends_with("%")) {
+			if (currentLine.starts_with('%') && currentLine.ends_with('%')) {
 				currentSection = SECTION_FILES_NONE;
 				if (currentLine == "%FILES%") currentSection = SECTION_FILES_FILES;
 				if (currentLine == "%BACKUP%") currentSection = SECTION_FILES_BACKUP;
@@ -259,6 +268,8 @@ std::pair<std::map<std::string, std::map<std::string, std::string>>, bool> Pkgs:
 
 std::pair<bool, PackageDescription> Pkgs::getDescriptionForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getDescriptionForPackage");
+	std::string tracyArgs = "Pkg: " + pkg;
+	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
 	if (descriptions.contains(pkg))
 		return {true, descriptions.at(pkg)};
 	else
@@ -266,6 +277,8 @@ std::pair<bool, PackageDescription> Pkgs::getDescriptionForPackage(const std::st
 }
 std::set<std::string> Pkgs::getFilesForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getFilesForPackage");
+	std::string tracyArgs = "Pkg: " + pkg;
+	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
 	if (files.contains(pkg))
 		return files.at(pkg);
 
@@ -281,6 +294,8 @@ std::set<std::string> Pkgs::getFilesForPackage(const std::string& pkg) {
 
 std::map<std::string, std::string> Pkgs::getBackupFilesForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getBackupFilesForPackage()");
+	std::string tracyArgs = "Pkg: " + pkg;
+	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
 	if (backupFiles.contains(pkg))
 		return backupFiles.at(pkg);
 
@@ -289,22 +304,4 @@ std::map<std::string, std::string> Pkgs::getBackupFilesForPackage(const std::str
 		return {};
 	else
 		return backupFiles.at(pkg);
-}
-
-std::map<std::string, PackageDescription> Pkgs::getDescriptionsUnsafe() {
-	ZoneScopedN("Pkgs::getDescriptionsUnsafe()");
-	if (descriptions.size())
-		return descriptions;
-	else {
-		return this->getDescriptions().first;
-	}
-}
-
-std::map<std::string, std::set<std::string>> Pkgs::getFilesUnsafe() {
-	ZoneScopedN("Pkgs::getFilesUnsafe()");
-	if (files.size())
-		return files;
-	else {
-		return this->getFiles().first;
-	}
 }
