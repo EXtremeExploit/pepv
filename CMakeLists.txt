@@ -28,4 +28,15 @@ add_definitions(${GTK3_CFLAGS_OTHER})
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 add_executable(pepv src/main.cpp src/pkgs.cpp src/utils.cpp src/events.cpp)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT supported OUTPUT error)
+
+if( supported )
+    message(STATUS "IPO / LTO enabled")
+    set_property(TARGET pepv PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
+
 target_link_libraries(pepv PRIVATE ${GTK3_LIBRARIES} Tracy::TracyClient)
