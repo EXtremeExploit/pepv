@@ -26,7 +26,7 @@
 * `mkdir build && cd build`
 * `cmake ..`
 * `cmake --build . --config Release`
-* pepv needs the pepv.ui file to be somewhere it can find it, list of paths is in order
+* pepv needs the files `pepv.ui` and `pepv.png` to be somewhere it can find them together, list of paths is in order
     * `../pepv.ui` Only in debug build for debug purposes
     * `pepv.ui`
     * `/usr/share/pepv/pepv.ui`
@@ -34,6 +34,8 @@
     * `/app/share/runtime/share/pepv/pepv.ui`
     * `/run/host/user-share/pepv/pepv.ui`
     * `/run/host/share/pepv/pepv.ui`
+
+* If you want you can also resize the logo to multiple resolutions and put the images in `usr/share/icons/hicolor/SIZExSIZE/apps/pepv.png` so GTK chooses the correct resolution automatically
 
 # I dont know how to code but i want to use this program.
 * Follow the instructions above, you dont need to understand them
