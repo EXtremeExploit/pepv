@@ -19,7 +19,7 @@ void updatePkgInfo() {
 	const auto desc = p->getDescriptionForPackage(selected);
 
 	if (!desc.first) {
-		std::cout << "Couldnt get description for pkg: " << selected << std::endl;
+		std::cout << "Cannot get description for pkg: " << selected << std::endl;
 		return;
 	}
 
@@ -167,8 +167,8 @@ void populatePkgList() {
 
 	GtkTreeIter iter;
 
-	gtk_tree_selection_unselect_all(selection);
 	populationIsHappening = true;
+	gtk_tree_selection_unselect_all(selection);
 
 	gtk_tree_store_clear(treeStore);
 
@@ -210,23 +210,22 @@ void populatePkgList() {
 
 		gtk_tree_store_append(treeStore, &iter, NULL);
 
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_NAME, name, -1);
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_VERSION, version, -1);
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_REASON, reasonStr.c_str(), -1);
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_NUM_DEPS, numDeps, -1);
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_DESC, desc.c_str(), -1);
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_SIZE, pkg.size.value_or(0), -1);
-		gtk_tree_store_set(treeStore, &iter, COL_LIST_FILES, files, -1);
+		gtk_tree_store_set(treeStore, &iter,
+						   COL_LIST_NAME, name,
+						   COL_LIST_VERSION, version,
+						   COL_LIST_REASON, reasonStr.c_str(),
+						   COL_LIST_NUM_DEPS, numDeps,
+						   COL_LIST_DESC, desc.c_str(),
+						   COL_LIST_SIZE, pkg.size.value_or(0),
+						   COL_LIST_FILES, files, -1);
 		shown++;
 	}
 	populationIsHappening = false;
 
 	const auto shownStr = std::to_string(shown);
 	gtk_label_set_label(gShownPackages, shownStr.c_str());
-}
 
-void updateTotalPackagesLabel() {
-	static auto gTotalPackages = GTK_LABEL(gtk_builder_get_object(builder, "totalPackages"));
+    static auto gTotalPackages = GTK_LABEL(gtk_builder_get_object(builder, "totalPackages"));
 	const auto total           = p->getPackagesNames().size();
 	const auto totalStr        = std::to_string(total);
 	gtk_label_set_label(gTotalPackages, totalStr.c_str());
@@ -238,10 +237,10 @@ void on_reload_button_clicked(GtkButton* b) {
 	if (!treeStore)
 		treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
 
-	p->clear();
+	p->uninit();
+	p->init();
 
 	populatePkgList();
-	updateTotalPackagesLabel();
 }
 
 void on_select_changed(GtkWidget* c) {

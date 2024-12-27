@@ -1,38 +1,48 @@
 #include "pkgs.hpp"
 
-#include <algorithm>
 #include <cstdio>
-#include <execution>
 #include <iostream>
 
 #include <tracy/Tracy.hpp>
 
-void Pkgs::clear() {
+void Pkgs::uninit() {
+	ZoneScopedN("Pkgs::clear()");
 	pkgPaths.clear();
 	descriptions.clear();
 	files.clear();
 	backupFiles.clear();
+	inited = false;
+}
+
+void Pkgs::init() {
+	ZoneScopedN("Pkgs::init()");
+	if (inited) return;
+	inited = true;
+
+	this->getDescriptions();
+	this->getFiles();
 }
 
 std::set<std::string> Pkgs::getPackagesNames() {
 	ZoneScopedN("Pkgs::getPackagesNames()");
 
-	std::set<std::string> names = {};
-
+	if (!inited) return {};
 	if (!descriptions.size())
 		this->getDescriptions();
 
-	for (auto& desc : descriptions) {
+	std::set<std::string> names = {};
+	for (auto& desc : descriptions)
 		names.insert(desc.first);
-	}
+
 	return names;
 }
 
-std::pair<std::map<std::string, PackageDescription>, bool> Pkgs::getDescriptions() {
+std::map<std::string, PackageDescription> Pkgs::getDescriptions() {
 	ZoneScopedN("Pkgs::getDescriptions()");
+	if (!inited) return {};
 
 	if (descriptions.size() != 0) {
-		return {descriptions, true};
+		return descriptions;
 	}
 
 	std::set<fs::path> tempPkgsPaths;
@@ -87,8 +97,8 @@ std::pair<std::map<std::string, PackageDescription>, bool> Pkgs::getDescriptions
 				if (currentLine == "%XDATA%") currentSection = SECTION_DESC_XDATA;
 
 				if (currentSection == SECTION_DESC_NONE) {
-					std::cout << "Unrecognized section " << currentLine << "on package " << path << std::endl;
-					return {{}, false};
+					std::cout << "Unrecognized section " << currentLine << " on package " << path << std::endl;
+					return {};
 				}
 				continue;
 			}
@@ -186,17 +196,21 @@ std::pair<std::map<std::string, PackageDescription>, bool> Pkgs::getDescriptions
 		}
 	}
 
-	descriptions = pkgsDescs;
-	return {pkgsDescs, true};
+	{
+		ZoneNamedN(___tracy_cache_change, "set descriptions cache", true);
+		descriptions = pkgsDescs;
+	}
+	return pkgsDescs;
 };
 
-std::pair<std::map<std::string, std::set<std::string>>, bool> Pkgs::getFiles() {
+std::map<std::string, std::set<std::string>> Pkgs::getFiles() {
 	ZoneScopedN("Pkgs::getFiles()");
+	if (!inited) return {};
 	if (files.size())
-		return std::pair{files, true};
+		return files;
 
 	if (pkgPaths.size() == 0)
-		return {{}, false};
+		return {};
 
 	std::map<std::string, std::set<std::string>> pkgsFiles;
 	std::map<std::string, std::map<std::string, std::string>> pkgsBackupFiles;
@@ -212,7 +226,7 @@ std::pair<std::map<std::string, std::set<std::string>>, bool> Pkgs::getFiles() {
 		std::set<std::string> pkgFiles                    = {};
 		std::map<std::string, std::string> pkgBackupFiles = {};
 
-		char charCurrentLine[PATH_MAX];
+		char charCurrentLine[PATH_MAX + 1 + 33]; // max path length + MD5 length
 		while (std::fgets(charCurrentLine, sizeof(charCurrentLine), f)) {
 			charCurrentLine[strcspn(charCurrentLine, "\n")] = 0;
 			auto currentLine                                = std::string(charCurrentLine);
@@ -224,7 +238,7 @@ std::pair<std::map<std::string, std::set<std::string>>, bool> Pkgs::getFiles() {
 
 				if (currentSection == SECTION_FILES_NONE) {
 					std::cout << "Unrecognized section " << currentLine << "on package files " << path << std::endl;
-					return {{}, false};
+					return {};
 				}
 				continue;
 			}
@@ -249,27 +263,35 @@ std::pair<std::map<std::string, std::set<std::string>>, bool> Pkgs::getFiles() {
 		pkgsFiles.insert({name, pkgFiles});
 		pkgsBackupFiles.insert({name, pkgBackupFiles});
 	}
-	files       = pkgsFiles;
-	backupFiles = pkgsBackupFiles;
-	return {pkgsFiles, true};
+	{
+		ZoneNamedN(___tracy_cache_change, "set files cache", true);
+		files = pkgsFiles;
+	}
+	{
+		ZoneNamedN(___tracy_cache_change, "set backup files cache", true);
+		backupFiles = pkgsBackupFiles;
+	}
+	return pkgsFiles;
 };
 
-std::pair<std::map<std::string, std::map<std::string, std::string>>, bool> Pkgs::getBackupFiles() {
+std::map<std::string, std::map<std::string, std::string>> Pkgs::getBackupFiles() {
 	ZoneScopedN("Pkgs::getBackupFiles()");
+	if (!inited) return {};
 	if (backupFiles.size())
-		return {backupFiles, true};
+		return backupFiles;
 
 	const auto f = this->getFiles();
 
-	if (!f.second)
-		return {{}, false};
-	return {backupFiles, true};
+	if (f.empty())
+		return {};
+	return backupFiles;
 }
 
 std::pair<bool, PackageDescription> Pkgs::getDescriptionForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getDescriptionForPackage");
 	std::string tracyArgs = "Pkg: " + pkg;
 	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
+	if (!inited) return {false, {}};
 	if (descriptions.contains(pkg))
 		return {true, descriptions.at(pkg)};
 	else
@@ -279,15 +301,16 @@ std::set<std::string> Pkgs::getFilesForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getFilesForPackage");
 	std::string tracyArgs = "Pkg: " + pkg;
 	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
+	if (!inited) return {};
 	if (files.contains(pkg))
 		return files.at(pkg);
 
 	const auto f = this->getFiles();
-	if (!f.second)
+	if (f.empty())
 		return {};
 
-	if (f.first.contains(pkg))
-		return f.first.at(pkg);
+	if (f.contains(pkg))
+		return f.at(pkg);
 	else
 		return {};
 }
@@ -296,11 +319,12 @@ std::map<std::string, std::string> Pkgs::getBackupFilesForPackage(const std::str
 	ZoneScopedN("Pkgs::getBackupFilesForPackage()");
 	std::string tracyArgs = "Pkg: " + pkg;
 	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
+	if (!inited) return {};
 	if (backupFiles.contains(pkg))
 		return backupFiles.at(pkg);
 
 	const auto f = this->getFiles();
-	if (!f.second)
+	if (f.empty())
 		return {};
 	else
 		return backupFiles.at(pkg);

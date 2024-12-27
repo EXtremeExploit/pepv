@@ -89,6 +89,8 @@ class Pkgs {
 
 	std::map<std::string, fs::path> pkgPaths;
 
+    bool inited = false;
+
 	std::map<std::string, PackageDescription> descriptions;
 	std::map<std::string, std::set<std::string>> files;
 	std::map<std::string, std::map<std::string, std::string>> backupFiles;
@@ -96,13 +98,14 @@ class Pkgs {
 	public:
 	std::set<std::string> getPackagesNames();
 
-	std::pair<std::map<std::string, PackageDescription>, bool> getDescriptions();
-	std::pair<std::map<std::string, std::set<std::string>>, bool> getFiles();
-	std::pair<std::map<std::string, std::map<std::string, std::string>>, bool> getBackupFiles();
+	std::map<std::string, PackageDescription> getDescriptions();
+	std::map<std::string, std::set<std::string>> getFiles();
+	std::map<std::string, std::map<std::string, std::string>> getBackupFiles();
 
 	std::pair<bool, PackageDescription> getDescriptionForPackage(const std::string& pkg);
 	std::set<std::string> getFilesForPackage(const std::string& pkg);
 	std::map<std::string, std::string> getBackupFilesForPackage(const std::string& pkg);
 
-	void clear();
+	void init();
+	void uninit();
 };

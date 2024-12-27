@@ -8,8 +8,3 @@ extern std::string selected;
 extern Pkgs* p;
 
 void populatePkgList();
-void updateTotalPackagesLabel();
-
-extern "C" {
-void on_reload_button_clicked(GtkButton* b);
-}

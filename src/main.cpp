@@ -50,9 +50,8 @@ int main(int argc, char** argv) {
 
 	gtk_builder_connect_signals(builder, NULL);
 
-	p->getFiles();
+	p->init();
 	populatePkgList();
-	updateTotalPackagesLabel();
 
 	gtk_widget_show(GTK_WIDGET(window));
 
