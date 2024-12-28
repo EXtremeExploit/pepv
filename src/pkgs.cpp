@@ -6,7 +6,7 @@
 #include <tracy/Tracy.hpp>
 
 void Pkgs::uninit() {
-	ZoneScopedN("Pkgs::clear()");
+	ZoneScopedN("Pkgs::uninit()");
 	pkgPaths.clear();
 	descriptions.clear();
 	files.clear();

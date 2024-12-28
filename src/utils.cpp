@@ -32,7 +32,7 @@ std::string formattedSize(const uint64_t s, bool binary) {
 		ss << s / std::pow(divider, 2) << " MB";
 	} else if (s < std::pow(divider, 4)) {
 		ss << s / std::pow(divider, 3) << " GB";
-	} else if (s < std::pow(divider, 5)) {
+	} else {
 		ss << s / std::pow(divider, 4) << " TB";
 	}
 	return ss.str();

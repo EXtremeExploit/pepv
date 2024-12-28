@@ -7,7 +7,7 @@
 
 #include <tracy/Tracy.hpp>
 
-GtkTreeSelection* selection = nullptr;
+std::string selected;
 
 void updatePkgInfo() {
 	ZoneScopedN("updatePkgInfo");
@@ -133,10 +133,8 @@ void updatePkgBackupFiles() {
 bool populationIsHappening = false;
 void populatePkgList() {
 	ZoneScopedN("populatePkgList");
-	if (!selection)
-		selection = GTK_TREE_SELECTION(gtk_builder_get_object(builder, "select"));
-	if (!treeStore)
-		treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
+	static const auto selection = GTK_TREE_SELECTION(gtk_builder_get_object(builder, "select"));
+	static const auto treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
 
 	static auto gSearchEntry  = GTK_SEARCH_ENTRY(gtk_builder_get_object(builder, "searchEntry"));
 	static auto gSearchInName = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "searchInName"));
@@ -225,7 +223,7 @@ void populatePkgList() {
 	const auto shownStr = std::to_string(shown);
 	gtk_label_set_label(gShownPackages, shownStr.c_str());
 
-    static auto gTotalPackages = GTK_LABEL(gtk_builder_get_object(builder, "totalPackages"));
+	static auto gTotalPackages = GTK_LABEL(gtk_builder_get_object(builder, "totalPackages"));
 	const auto total           = p->getPackagesNames().size();
 	const auto totalStr        = std::to_string(total);
 	gtk_label_set_label(gTotalPackages, totalStr.c_str());
@@ -234,8 +232,7 @@ void populatePkgList() {
 extern "C" {
 void on_reload_button_clicked(GtkButton* b) {
 	ZoneScopedN("on_reload_button_clicked");
-	if (!treeStore)
-		treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
+	static const auto treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
 
 	p->uninit();
 	p->init();

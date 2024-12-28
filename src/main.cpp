@@ -6,9 +6,6 @@
 #include <tracy/Tracy.hpp>
 
 GtkBuilder* builder;
-GtkTreeStore* treeStore;
-GtkTreeView* treeView;
-std::string selected;
 Pkgs* p;
 
 int main(int argc, char** argv) {
@@ -44,7 +41,6 @@ int main(int argc, char** argv) {
 	}
 
 	auto window = GTK_WINDOW(gtk_builder_get_object(builder, "window"));
-	treeView    = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeView"));
 
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 

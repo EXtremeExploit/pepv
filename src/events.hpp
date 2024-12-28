@@ -3,8 +3,6 @@
 #include <gtk/gtk.h>
 
 extern GtkBuilder* builder;
-extern GtkTreeStore* treeStore;
-extern std::string selected;
 extern Pkgs* p;
 
 void populatePkgList();
