@@ -161,7 +161,7 @@ void populatePkgList() {
 	const auto fromOfficial = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSourceOfficial));
 	const auto fromAUR      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSourceAUR));
 
-	auto names = p->getPackagesNames();
+	const auto names = p->getPackagesNames();
 
 	GtkTreeIter iter;
 
@@ -258,9 +258,9 @@ void on_select_changed(GtkWidget* c) {
 	std::thread infoUpdater(updatePkgInfo);
 	std::thread backupUpdater(updatePkgBackupFiles);
 
+	backupUpdater.join();
 	infoUpdater.join();
 	filesUpdater.join();
-	backupUpdater.join();
 }
 
 void on_applyFilters_clicked(GtkButton* c) {

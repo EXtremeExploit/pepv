@@ -97,17 +97,16 @@ class Pkgs {
 	std::map<std::string, std::set<std::string>> files;
 	std::map<std::string, std::map<std::string, std::string>> backupFiles;
 
-	std::map<std::string, PackageDescription> getDescriptions();
-	std::map<std::string, std::set<std::string>> getFiles();
-	std::map<std::string, std::map<std::string, std::string>> getBackupFiles();
+	void initDescriptions();
+	void initFiles();
 
 	public:
 	void init();
 	void uninit();
 
-	std::set<std::string> getPackagesNames();
+	const std::set<std::string> getPackagesNames();
 
-	std::pair<bool, PackageDescription> getDescriptionForPackage(const std::string& pkg);
-	std::set<std::string> getFilesForPackage(const std::string& pkg);
-	std::map<std::string, std::string> getBackupFilesForPackage(const std::string& pkg);
+	const std::pair<bool, PackageDescription> getDescriptionForPackage(const std::string& pkg);
+	const std::set<std::string> getFilesForPackage(const std::string& pkg);
+	const std::map<std::string, std::string> getBackupFilesForPackage(const std::string& pkg);
 };
