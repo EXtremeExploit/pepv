@@ -16,11 +16,11 @@ void Pkgs::init() {
 
 void Pkgs::uninit() {
 	ZoneScopedN("Pkgs::uninit()");
+	inited = false;
 	pkgPaths.clear();
 	descriptions.clear();
 	files.clear();
 	backupFiles.clear();
-	inited = false;
 }
 
 void Pkgs::initDescriptions() {

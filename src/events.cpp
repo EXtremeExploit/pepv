@@ -123,10 +123,10 @@ void updatePkgBackupFiles() {
 
 	const auto files = p->getBackupFilesForPackage(selected);
 	GtkTreeIter iter;
-	for (auto& [f, h] : files) {
+	for (auto& [f, hash] : files) {
 		gtk_tree_store_append(gPkgBackup, &iter, NULL);
 		gtk_tree_store_set(gPkgBackup, &iter, COL_BACKUP_PATH, f.c_str(), -1);
-		gtk_tree_store_set(gPkgBackup, &iter, COL_BACKUP_HASH, h.c_str(), -1);
+		gtk_tree_store_set(gPkgBackup, &iter, COL_BACKUP_HASH, hash.c_str(), -1);
 	}
 }
 
@@ -145,6 +145,8 @@ void populatePkgList() {
 	static auto gTypeRadioButtonDependency = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "typeRadioButtonDependency"));
 
 	static auto gShownPackages = GTK_LABEL(gtk_builder_get_object(builder, "shownPackages"));
+	static auto gShownSize     = GTK_LABEL(gtk_builder_get_object(builder, "shownSize"));
+	static auto gShownFiles    = GTK_LABEL(gtk_builder_get_object(builder, "shownFiles"));
 
 	static auto gSourceOfficial = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromOfficial"));
 	static auto gSourceAUR      = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromAUR"));
@@ -168,9 +170,15 @@ void populatePkgList() {
 	populationIsHappening = true;
 	gtk_tree_selection_unselect_all(selection);
 
-	gtk_tree_store_clear(treeStore);
-
-	uint32_t shown = 0;
+	{
+		ZoneNamedN(__tracy_store_clear, "tree store clear", true);
+		gtk_tree_store_clear(treeStore);
+	}
+	uint32_t shownCount = 0;
+	uint64_t shownSize  = 0;
+	uint64_t totalSize  = 0;
+	uint64_t shownFiles = 0;
+	uint64_t totalFiles = 0;
 
 	for (auto& e : names) {
 		ZoneNamedN(_tracy_zone_populate_package, "populate package", true);
@@ -181,7 +189,11 @@ void populatePkgList() {
 			std::cout << "Couldnt get description for pkg: " << e << std::endl;
 			continue;
 		}
-		const auto pkg = pkgDescRes.second;
+		const auto pkg   = pkgDescRes.second;
+		const auto files = p->getFilesForPackage(pkg.name).size();
+
+		totalSize += pkg.size.value_or(0);
+		totalFiles += files;
 
 		if (!fromOfficial && !pkg.isLocal) continue;
 		if (!fromAUR && pkg.isLocal) continue;
@@ -197,42 +209,56 @@ void populatePkgList() {
 				continue;
 		}
 
-		std::string reasonStr = reasonToStr(pkg.reason);
+		std::string_view reasonStr = reasonToStr(pkg.reason);
 
 		const auto name    = pkg.name.c_str();
 		const auto version = pkg.version.c_str();
 		const auto numDeps = pkg.depends.size();
 		const auto desc    = pkg.desc.value_or("");
 
-		const auto files = p->getFilesForPackage(pkg.name).size();
-
 		gtk_tree_store_append(treeStore, &iter, NULL);
 
 		gtk_tree_store_set(treeStore, &iter,
 						   COL_LIST_NAME, name,
 						   COL_LIST_VERSION, version,
-						   COL_LIST_REASON, reasonStr.c_str(),
+						   COL_LIST_REASON, reasonStr.data(),
 						   COL_LIST_NUM_DEPS, numDeps,
 						   COL_LIST_DESC, desc.c_str(),
 						   COL_LIST_SIZE, pkg.size.value_or(0),
 						   COL_LIST_FILES, files, -1);
-		shown++;
+		shownCount++;
+		shownSize += pkg.size.value_or(0);
+		shownFiles += files;
 	}
 	populationIsHappening = false;
 
-	const auto shownStr = std::to_string(shown);
-	gtk_label_set_label(gShownPackages, shownStr.c_str());
+	// Shown indicators
+	const auto shownCountStr = std::to_string(shownCount);
+	gtk_label_set_label(gShownPackages, shownCountStr.c_str());
 
+	const auto shownSizeStr = formattedSize(shownSize);
+	gtk_label_set_label(gShownSize, shownSizeStr.c_str());
+
+	const auto shownFilesStr = std::to_string(shownFiles);
+	gtk_label_set_label(gShownFiles, shownFilesStr.c_str());
+
+	// Total indicators
 	static auto gTotalPackages = GTK_LABEL(gtk_builder_get_object(builder, "totalPackages"));
-	const auto total           = p->getPackagesNames().size();
-	const auto totalStr        = std::to_string(total);
+	const auto totalStr        = std::to_string(names.size());
 	gtk_label_set_label(gTotalPackages, totalStr.c_str());
+
+	static auto gTotalSize  = GTK_LABEL(gtk_builder_get_object(builder, "totalSize"));
+    const auto totalSizeStr = formattedSize(totalSize);
+	gtk_label_set_label(gTotalSize, totalSizeStr.c_str());
+
+	static auto gTotalFiles  = GTK_LABEL(gtk_builder_get_object(builder, "totalFiles"));
+	const auto totalFilesStr = std::to_string(totalFiles);
+	gtk_label_set_label(gTotalFiles, totalFilesStr.c_str());
 }
 
 extern "C" {
 void on_reload_button_clicked(GtkButton* b) {
 	ZoneScopedN("on_reload_button_clicked");
-	static const auto treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
 
 	p->uninit();
 	p->init();

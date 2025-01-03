@@ -11,8 +11,8 @@ std::string formattedTimestamp(const time_t t) {
 	return std::string(buffer);
 }
 
-std::string reasonToStr(PKGReason r) {
-	std::string reasonStr = "Undefined";
+std::string_view reasonToStr(PKGReason r) {
+	std::string_view reasonStr = "Undefined";
 	switch (r) {
 		case REASON_EXPLICIT: reasonStr = "Explicit"; break;
 		case REASON_DEPEND: reasonStr = "Dependency"; break;
@@ -23,17 +23,18 @@ std::string reasonToStr(PKGReason r) {
 
 std::string formattedSize(const uint64_t s, bool binary) {
 	const int divider = binary ? 1024 : 1000;
+    const std::string_view byteIndicator =  binary ? "iB" : "B";
 	std::stringstream ss;
 	if (s < divider) {
 		ss << s << " Bytes";
 	} else if (s < std::pow(divider, 2)) {
-		ss << s / std::pow(divider, 1) << " KB";
+		ss << s / std::pow(divider, 1) << " K" << byteIndicator;
 	} else if (s < std::pow(divider, 3)) {
-		ss << s / std::pow(divider, 2) << " MB";
+		ss << s / std::pow(divider, 2) << " M" << byteIndicator;
 	} else if (s < std::pow(divider, 4)) {
-		ss << s / std::pow(divider, 3) << " GB";
+		ss << s / std::pow(divider, 3) << " G" << byteIndicator;
 	} else {
-		ss << s / std::pow(divider, 4) << " TB";
+		ss << s / std::pow(divider, 4) << " T" << byteIndicator;
 	}
 	return ss.str();
 }
@@ -42,9 +43,10 @@ std::string setToStr(std::set<std::string> s, const char* delimeter) {
 	ZoneScopedN("setToStr");
 	std::stringstream ss;
 	int i = 0;
+    int size = s.size();
 	for (const auto& str : s) {
 		i++;
-		if (i == s.size())
+		if (i == size)
 			ss << str;
 		else
 			ss << str << delimeter;
