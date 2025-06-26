@@ -6,7 +6,7 @@
 # Features
 * Search using package name or/and description
 * Filter by explicitly installed or dependencies
-* Filter either by packages in the AUR or in official repos
+* Filter either by packages in the AUR or in specific repositories
 * All of the filters above work together!
 * Show how many packages are installed and shown
 * View how many dependencies and files each package has
