@@ -140,9 +140,8 @@ void populatePkgList() {
 	static auto gSearchInName = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "searchInName"));
 	static auto gSearchInDesc = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "searchInDesc"));
 
-	static auto gTypeRadioButtonAny        = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "typeRadioButtonAny"));
-	static auto gTypeRadioButtonExplicit   = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "typeRadioButtonExplicit"));
-	static auto gTypeRadioButtonDependency = GTK_RADIO_BUTTON(gtk_builder_get_object(builder, "typeRadioButtonDependency"));
+	static auto gTypeExplicit   = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "typeExplicit"));
+	static auto gTypeDependency = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "typeDependency"));
 
 	static auto gShownPackages = GTK_LABEL(gtk_builder_get_object(builder, "shownPackages"));
 	static auto gShownSize     = GTK_LABEL(gtk_builder_get_object(builder, "shownSize"));
@@ -156,9 +155,8 @@ void populatePkgList() {
 	const auto searchInName = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSearchInName));
 	const auto searchInDesc = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSearchInDesc));
 
-	const auto typeAny        = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeRadioButtonAny));
-	const auto typeExplicit   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeRadioButtonExplicit));
-	const auto typeDependency = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeRadioButtonDependency));
+	const auto typeExplicit   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeExplicit));
+	const auto typeDependency = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeDependency));
 
 	const auto fromOfficial = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSourceOfficial));
 	const auto fromAUR      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSourceAUR));
@@ -198,8 +196,8 @@ void populatePkgList() {
 		if (!fromOfficial && !pkg.isLocal) continue;
 		if (!fromAUR && pkg.isLocal) continue;
 
-		if (typeExplicit && pkg.reason != REASON_EXPLICIT) continue;
-		if (typeDependency && pkg.reason != REASON_DEPEND) continue;
+		if (pkg.reason == REASON_EXPLICIT && !typeExplicit) continue;
+		if (pkg.reason == REASON_DEPEND && !typeDependency) continue;
 
 		if (!query.empty() && (searchInName || searchInDesc)) {
 			bool foundQuery = false;
@@ -248,7 +246,7 @@ void populatePkgList() {
 	gtk_label_set_label(gTotalPackages, totalStr.c_str());
 
 	static auto gTotalSize  = GTK_LABEL(gtk_builder_get_object(builder, "totalSize"));
-    const auto totalSizeStr = formattedSize(totalSize);
+	const auto totalSizeStr = formattedSize(totalSize);
 	gtk_label_set_label(gTotalSize, totalSizeStr.c_str());
 
 	static auto gTotalFiles  = GTK_LABEL(gtk_builder_get_object(builder, "totalFiles"));
