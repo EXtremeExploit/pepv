@@ -16,6 +16,7 @@
 * No uninstalling packages
 * No installing packages
 * No updating packages
+* Only support for `core`, `extra` and `multilib` repositories
 
 ## Why?
 * Because i want this program only to work as a viewer, everything regarding actually messing with your system should be in your own hands with you knowing what you are doing instead of me deciding what packages stay and go blindly

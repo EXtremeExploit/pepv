@@ -3,6 +3,10 @@
 #include <cstdio>
 #include <iostream>
 
+#include <alpm.h>
+#include <alpm_list.h>
+
+#include <string_view>
 #include <tracy/Tracy.hpp>
 
 void Pkgs::init() {
@@ -26,6 +30,19 @@ void Pkgs::uninit() {
 void Pkgs::initDescriptions() {
 	ZoneScopedN("Pkgs::initDescriptions()");
 	if (!inited) return;
+
+	std::map<REPOS, alpm_db_t*> repos;
+
+	{
+		ZoneNamedN(___tracy_pkg_pacman, "Initialize alpm and dbs", true);
+		alpm_errno_t alpmErr = ALPM_ERR_OK;
+		auto handle          = alpm_initialize("/", "/var/lib/pacman/", nullptr);
+
+		for (auto [repoId, repoName] : Repositories) {
+			alpm_db_t* db = alpm_register_syncdb(handle, repoName.data(), ALPM_DB_USAGE_SEARCH);
+			repos.emplace(repoId, db);
+		}
+	}
 
 	std::set<fs::path> tempPkgsPaths;
 	{
@@ -122,8 +139,6 @@ void Pkgs::initDescriptions() {
 					}
 					case SECTION_DESC_PACKAGER:
 						pkg.packager.emplace(currentLine);
-						if (currentLine == "Unknown Packager")
-							pkg.isLocal = true; // TODO: is this correct?
 						break;
 					case SECTION_DESC_SIZE: {
 						auto num = std::stoull(currentLine.data());
@@ -169,6 +184,18 @@ void Pkgs::initDescriptions() {
 				}
 			}
 			fclose(f);
+
+			{
+				ZoneNamedN(___tracy_pkg_pacman, "Initialize alpm and dbs", true);
+				for (auto [repoId, db] : repos) {
+					auto pkgFound = alpm_db_get_pkg(db, pkg.name.c_str());
+					if (pkgFound) {
+						pkg.repo.emplace(repoId);
+						break;
+					}
+				}
+			}
+
 			pkgPaths.insert({pkg.name, path});
 			descriptions.insert({pkg.name, pkg});
 		}

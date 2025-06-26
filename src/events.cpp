@@ -147,8 +147,10 @@ void populatePkgList() {
 	static auto gShownSize     = GTK_LABEL(gtk_builder_get_object(builder, "shownSize"));
 	static auto gShownFiles    = GTK_LABEL(gtk_builder_get_object(builder, "shownFiles"));
 
-	static auto gSourceOfficial = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromOfficial"));
-	static auto gSourceAUR      = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromAUR"));
+	static auto gFromCore     = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromCore"));
+	static auto gFromExtra    = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromExtra"));
+	static auto gFromMultilib = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromMultilib"));
+	static auto gFromAUR      = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "fromAUR"));
 
 	const auto searchTerm   = gtk_entry_get_text(GTK_ENTRY(gSearchEntry));
 	const auto query        = std::string_view(searchTerm);
@@ -158,8 +160,10 @@ void populatePkgList() {
 	const auto typeExplicit   = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeExplicit));
 	const auto typeDependency = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gTypeDependency));
 
-	const auto fromOfficial = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSourceOfficial));
-	const auto fromAUR      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gSourceAUR));
+	const auto fromCore     = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gFromCore));
+	const auto fromExtra    = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gFromExtra));
+	const auto fromMultilib = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gFromMultilib));
+	const auto fromAUR      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gFromAUR));
 
 	const auto names = p->getPackagesNames();
 
@@ -193,8 +197,10 @@ void populatePkgList() {
 		totalSize += pkg.size.value_or(0);
 		totalFiles += files;
 
-		if (!fromOfficial && !pkg.isLocal) continue;
-		if (!fromAUR && pkg.isLocal) continue;
+		if (pkg.repo.has_value() && pkg.repo.value() == DBS_CORE && !fromCore) continue;
+		if (pkg.repo.has_value() && pkg.repo.value() == DBS_EXTRA && !fromExtra) continue;
+		if (pkg.repo.has_value() && pkg.repo.value() == DBS_MULTILIB && !fromMultilib) continue;
+		if (!pkg.repo.has_value() && !fromAUR) continue;
 
 		if (pkg.reason == REASON_EXPLICIT && !typeExplicit) continue;
 		if (pkg.reason == REASON_DEPEND && !typeDependency) continue;
@@ -214,6 +220,8 @@ void populatePkgList() {
 		const auto numDeps = pkg.depends.size();
 		const auto desc    = pkg.desc.value_or("");
 
+		std::string_view repo = repoIdToStr(pkg.repo.value_or((REPOS)-1));
+
 		gtk_tree_store_append(treeStore, &iter, NULL);
 
 		gtk_tree_store_set(treeStore, &iter,
@@ -223,7 +231,9 @@ void populatePkgList() {
 						   COL_LIST_NUM_DEPS, numDeps,
 						   COL_LIST_DESC, desc.c_str(),
 						   COL_LIST_SIZE, pkg.size.value_or(0),
-						   COL_LIST_FILES, files, -1);
+						   COL_LIST_FILES, files,
+						   COL_LIST_REPO, repo.data(),
+						   -1);
 		shownCount++;
 		shownSize += pkg.size.value_or(0);
 		shownFiles += files;

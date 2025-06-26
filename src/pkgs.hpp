@@ -4,6 +4,7 @@
 #include <set>
 #include <optional>
 #include <filesystem>
+#include <string_view>
 
 namespace fs = std::filesystem;
 
@@ -15,11 +16,24 @@ enum LIST_COLS {
 	COL_LIST_DESC,
 	COL_LIST_SIZE,
 	COL_LIST_FILES,
+	COL_LIST_REPO,
 };
 
 enum BACKUP_COLS {
 	COL_BACKUP_PATH = 0,
 	COL_BACKUP_HASH,
+};
+
+enum REPOS : uint8_t {
+	DBS_CORE,
+	DBS_EXTRA,
+	DBS_MULTILIB,
+};
+
+const std::map<REPOS, std::string_view> Repositories = {
+	{DBS_CORE, "core"},
+	{DBS_EXTRA, "extra"},
+	{DBS_MULTILIB, "multilib"},
 };
 
 enum SectionDesc {
@@ -81,7 +95,7 @@ struct PackageDescription {
 	std::optional<std::string> xdata;
 	std::set<std::string> requiredBy;
 	std::set<std::string> optRequiredBy;
-	bool isLocal = false; // AUR / self-packaged
+	std::optional<REPOS> repo;
 };
 
 class Pkgs {

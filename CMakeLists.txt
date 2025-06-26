@@ -25,6 +25,10 @@ link_directories(${GTK3_LIBRARY_DIRS})
 # Add other flags to the compiler
 add_definitions(${GTK3_CFLAGS_OTHER})
 
+# libalpm
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ALPM REQUIRED libalpm)
+
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 add_executable(pepv src/main.cpp src/pkgs.cpp src/utils.cpp src/events.cpp)
@@ -42,4 +46,4 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 endif()
 
-target_link_libraries(pepv PRIVATE ${GTK3_LIBRARIES} Tracy::TracyClient)
+target_link_libraries(pepv PRIVATE ${GTK3_LIBRARIES} Tracy::TracyClient ${ALPM_LIBRARIES})

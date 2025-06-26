@@ -1,7 +1,9 @@
 #include "utils.hpp"
+#include "pkgs.hpp"
 
 #include <cmath>
 
+#include <string_view>
 #include <tracy/Tracy.hpp>
 
 std::string formattedTimestamp(const time_t t) {
@@ -21,9 +23,22 @@ std::string_view reasonToStr(PKGReason r) {
 	return reasonStr;
 }
 
+std::string_view repoIdToStr(REPOS repo) {
+	std::string_view repoStr = "Undefined";
+	switch (repo) {
+		case DBS_CORE: repoStr = "core"; break;
+		case DBS_EXTRA: repoStr = "extra"; break;
+		case DBS_MULTILIB: repoStr = "multilib"; break;
+		default:
+			repoStr = "AUR";
+			break;
+	}
+	return repoStr;
+}
+
 std::string formattedSize(const uint64_t s, bool binary) {
-	const int divider = binary ? 1024 : 1000;
-    const std::string_view byteIndicator =  binary ? "iB" : "B";
+	const int divider                    = binary ? 1024 : 1000;
+	const std::string_view byteIndicator = binary ? "iB" : "B";
 	std::stringstream ss;
 	if (s < divider) {
 		ss << s << " Bytes";
@@ -42,8 +57,8 @@ std::string formattedSize(const uint64_t s, bool binary) {
 std::string setToStr(std::set<std::string> s, const char* delimeter) {
 	ZoneScopedN("setToStr");
 	std::stringstream ss;
-	int i = 0;
-    int size = s.size();
+	int i    = 0;
+	int size = s.size();
 	for (const auto& str : s) {
 		i++;
 		if (i == size)
