@@ -186,7 +186,9 @@ void Pkgs::initDescriptions() {
 			fclose(f);
 
 			{
-				ZoneNamedN(___tracy_pkg_pacman, "Initialize alpm and dbs", true);
+				ZoneNamedN(___tracy_get_pkg_repo, "get package repository", true);
+				const auto tracyArgs = "pkg: " + pkg.name;
+				___tracy_get_pkg_repo.Text(tracyArgs.c_str(), tracyArgs.length());
 				for (auto [repoId, db] : repos) {
 					auto pkgFound = alpm_db_get_pkg(db, pkg.name.c_str());
 					if (pkgFound) {
@@ -204,9 +206,9 @@ void Pkgs::initDescriptions() {
 	{
 		ZoneNamedN(___tracy_fill_deps, "Fill package required by", true);
 		for (auto& pkg : descriptions) {
-			ZoneNamedN(___tracy_get_descs_pkg, "Complete packages that depend on", true);
+			ZoneNamedN(___tracy_get_req_by_pkg, "Complete packages that depend on", true);
 			const auto tracyArgs = "Pkg: " + pkg.first;
-			___tracy_get_descs_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
+			___tracy_get_req_by_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
 			for (auto& dep : pkg.second.depends) {
 				if (descriptions.contains(dep))
 					descriptions.at(dep).requiredBy.insert(pkg.first);
