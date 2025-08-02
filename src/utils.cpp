@@ -1,9 +1,11 @@
 #include "utils.hpp"
+
 #include "pkgs.hpp"
 
 #include <cmath>
-
+#include <cstring>
 #include <string_view>
+
 #include <tracy/Tracy.hpp>
 
 std::string formattedTimestamp(const time_t t) {
@@ -37,7 +39,7 @@ std::string_view repoIdToStr(REPOS repo) {
 }
 
 std::string formattedSize(const uint64_t s, bool binary) {
-	const int divider                    = binary ? 1024 : 1000;
+	const uint64_t divider               = binary ? 1024 : 1000;
 	const std::string_view byteIndicator = binary ? "iB" : "B";
 	std::stringstream ss;
 	if (s < divider) {

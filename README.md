@@ -17,30 +17,39 @@
 * No installing packages
 * No updating packages
 * Only support for `core`, `extra` and `multilib` repositories
+    * Also supports viewing AUR/locally built packages
 
 ## Why?
 * Because i want this program only to work as a viewer, everything regarding actually messing with your system should be in your own hands with you knowing what you are doing instead of me deciding what packages stay and go blindly
 
+# Installing
+* AUR: https://aur.archlinux.org/packages/pepv-git
+
+
 # Building
+## Requirements
+* Meson (1.1 or higher)
+* git
+## Instructions
 * git clone this repository
-* Open a terminal in the directory of the repo and run the next commands
-* `mkdir build && cd build`
-* `cmake ..`
-* `cmake --build . --config Release`
-* pepv needs the files `pepv.ui` and `pepv.png` to be somewhere it can find them together, list of paths is in order
-    * `../pepv.ui` Only in debug build for debug purposes
-    * `pepv.ui`
+* Open a terminal in the directory of the repo and run the next commands for a release build
+* `meson setup build -Dtracy_enable=false -Dbuildtype=release`
+* `meson compile -C build`
+* `meson install -C build` To install locally using built binary, this also includes:
+    * Desktop entry
+    * Icons
+    * README.md in doc
+    * UI file
+* pepv will also look for `pepv.ui` in other paths, list of paths is in order
+    * `../data/pepv.ui` Only in debug build for debug purposes
+    * `PREFIX "/" DATADIR "/pepv/pepv.ui"` (PREFIX and DATADIR may be set by meson options for packaging purposes)
     * `/usr/share/pepv/pepv.ui`
+    * `/usr/local/share/pepv/pepv.ui`
     * `/app/share/pepv/pepv.ui`
     * `/app/share/runtime/share/pepv/pepv.ui`
     * `/run/host/user-share/pepv/pepv.ui`
     * `/run/host/share/pepv/pepv.ui`
 
-* If you want you can also resize the logo to multiple resolutions and put the images in `usr/share/icons/hicolor/SIZExSIZE/apps/pepv.png` so GTK chooses the correct resolution automatically
-
-# I dont know how to code but i want to use this program.
+# I dont know how to code but i want to use this program in a distro that doesnt have AUR.
 * Follow the instructions above, you dont need to understand them
-* If you are scared of basic computer usage then you can wait for someone to package this program in your arch-based distro and i may add it in this readme
-
-# Installing
-* AUR: https://aur.archlinux.org/packages/pepv-git
+* If you are scared of basic computer usage then you can wait for someone to package this program in your distro and i may add it in this README or you can just open a new issue to ask for help

@@ -3,16 +3,20 @@
 #include "pkgs.hpp"
 #include "utils.hpp"
 
+#include <cassert>
 #include <iostream>
+#include <thread>
 
 #include <tracy/Tracy.hpp>
 
 std::string selected;
 
 void updatePkgInfo() {
-	ZoneScopedN("updatePkgInfo");
+	ZoneNamedN(___tracy_updatePkgInfo, "updatePkgInfo", true);
+#ifdef TRACY_ENABLE
 	const std::string tracyArgs = "Package: " + selected;
-	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.size());
+	___tracy_updatePkgInfo.Text(tracyArgs.c_str(), tracyArgs.size());
+#endif
 	static auto gPkgInfo   = GTK_TEXT_VIEW(gtk_builder_get_object(builder, "pkgInfo"));
 	static auto infoBuffer = gtk_text_view_get_buffer(gPkgInfo);
 
@@ -41,8 +45,8 @@ void updatePkgInfo() {
 		infoss << "Build date: " << bdss.c_str() << std::endl;
 	}
 	if (pkg.installDate.has_value()) {
-		auto idss = formattedTimestamp(pkg.installDate.value());
-		infoss << "Install date: " << idss.c_str() << std::endl;
+		auto installDatess = formattedTimestamp(pkg.installDate.value());
+		infoss << "Install date: " << installDatess.c_str() << std::endl;
 	}
 	if (pkg.packager.has_value())
 		infoss << "Packager: " << pkg.packager.value() << std::endl;
@@ -101,9 +105,11 @@ void updatePkgInfo() {
 }
 
 void updatePkgFiles() {
-	ZoneScopedN("updatePkgFiles");
+	ZoneNamedN(___tracy_updatePkgFiles, "updatePkgFiles", true);
+#ifdef TRACY_ENABLE
 	const std::string tracyArgs = "Package: " + selected;
-	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.size());
+	___tracy_updatePkgFiles.Text(tracyArgs.c_str(), tracyArgs.size());
+#endif
 	static auto gPkgFiles   = GTK_TEXT_VIEW(gtk_builder_get_object(builder, "pkgFiles"));
 	static auto filesBuffer = gtk_text_view_get_buffer(gPkgFiles);
 
@@ -114,9 +120,11 @@ void updatePkgFiles() {
 }
 
 void updatePkgBackupFiles() {
-	ZoneScopedN("updatePkgBackupFiles");
+	ZoneNamedN(___tracy_updatePkgBackupFiles, "updatePkgBackupFiles", true);
+#ifdef TRACY_ENABLE
 	const std::string tracyArgs = "Package: " + selected;
-	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.size());
+	___tracy_updatePkgBackupFiles.Text(tracyArgs.c_str(), tracyArgs.size());
+#endif
 	static auto gPkgBackup = GTK_TREE_STORE(gtk_builder_get_object(builder, "backupFilesStore"));
 
 	gtk_tree_store_clear(gPkgBackup);
@@ -132,7 +140,7 @@ void updatePkgBackupFiles() {
 
 bool populationIsHappening = false;
 void populatePkgList() {
-	ZoneScopedN("populatePkgList");
+	ZoneNamedN(___tracy_populatePkgList, "populatePkgList", true);
 	static const auto selection = GTK_TREE_SELECTION(gtk_builder_get_object(builder, "select"));
 	static const auto treeStore = GTK_TREE_STORE(gtk_builder_get_object(builder, "treeStore"));
 
@@ -169,6 +177,7 @@ void populatePkgList() {
 
 	GtkTreeIter iter;
 
+	assert(populationIsHappening == false); // This triggering means population ran twice, so performance is lost
 	populationIsHappening = true;
 	gtk_tree_selection_unselect_all(selection);
 
@@ -184,8 +193,10 @@ void populatePkgList() {
 
 	for (auto& e : names) {
 		ZoneNamedN(_tracy_zone_populate_package, "populate package", true);
+#ifdef TRACY_ENABLE
 		const std::string tracyArgs = "Package: " + e;
 		_tracy_zone_populate_package.Text(tracyArgs.c_str(), tracyArgs.size());
+#endif
 		const auto pkgDescRes = p->getDescriptionForPackage(e);
 		if (!pkgDescRes.first) {
 			std::cout << "Couldnt get description for pkg: " << e << std::endl;
@@ -266,7 +277,7 @@ void populatePkgList() {
 
 extern "C" {
 void on_reload_button_clicked(GtkButton* b) {
-	ZoneScopedN("on_reload_button_clicked");
+	ZoneNamedN(___tracy_on_reload_button_clicked, "on_reload_button_clicked", true);
 
 	p->uninit();
 	p->init();
@@ -275,7 +286,7 @@ void on_reload_button_clicked(GtkButton* b) {
 }
 
 void on_select_changed(GtkWidget* c) {
-	ZoneScopedN("on_select_changed");
+	ZoneNamedN(___tracy_on_select_changed, "on_select_changed", true);
 	if (populationIsHappening) return; // Even when there is nothing selected this function will still be called, dont want that
 	gchar* value;
 	GtkTreeIter iter;
@@ -298,7 +309,7 @@ void on_select_changed(GtkWidget* c) {
 }
 
 void on_applyFilters_clicked(GtkButton* c) {
-	ZoneScopedN("on_applyFilters_clicked");
+	ZoneNamedN(___tracy_on_applyFilters_clicked, "on_applyFilters_clicked", true);
 	populatePkgList();
 }
 }
