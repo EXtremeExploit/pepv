@@ -33,7 +33,7 @@ ColumnLimit: '0'
 CompactNamespaces: 'false'
 Language: Cpp
 PointerAlignment: Left
-SortIncludes: 'false'
+SortIncludes: 'true'
 SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeInheritanceColon: 'false'
 SpaceBeforeParens: ControlStatements

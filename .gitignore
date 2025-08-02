@@ -1,6 +1,8 @@
 .vscode
 .idea
 
+subprojects/*/
+subprojects/*/**
 compile_commands.json
 build/
 .cache

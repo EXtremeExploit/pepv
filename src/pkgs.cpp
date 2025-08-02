@@ -1,12 +1,14 @@
 #include "pkgs.hpp"
 
 #include <cstdio>
+#include <cstring>
 #include <iostream>
+#include <limits.h>
+#include <string_view>
 
 #include <alpm.h>
 #include <alpm_list.h>
 
-#include <string_view>
 #include <tracy/Tracy.hpp>
 
 void Pkgs::init() {
@@ -35,8 +37,7 @@ void Pkgs::initDescriptions() {
 
 	{
 		ZoneNamedN(___tracy_pkg_pacman, "Initialize alpm and dbs", true);
-		alpm_errno_t alpmErr = ALPM_ERR_OK;
-		auto handle          = alpm_initialize("/", "/var/lib/pacman/", nullptr);
+		auto handle = alpm_initialize("/", "/var/lib/pacman/", nullptr);
 
 		for (auto [repoId, repoName] : Repositories) {
 			alpm_db_t* db = alpm_register_syncdb(handle, repoName.data(), ALPM_DB_USAGE_SEARCH);
@@ -49,8 +50,10 @@ void Pkgs::initDescriptions() {
 		ZoneNamedN(___tracy_pkg_paths, "get package paths", true);
 		for (const auto& entry : fs::directory_iterator(this->dbPath)) {
 			ZoneNamedN(___tracy_pkg_path, "get package path", true);
+#ifdef TRACY_ENABLE
 			const auto tracyArgs = "Path: " + entry.path().string();
 			___tracy_pkg_path.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 
 			if (!entry.is_directory()) continue;
 			auto entryPath   = entry.path();
@@ -64,8 +67,10 @@ void Pkgs::initDescriptions() {
 		ZoneNamedN(___tracy_get_descs, "get package descriptions", true);
 		for (const auto& path : tempPkgsPaths) {
 			ZoneNamedN(___tracy_get_descs_pkg, "get package description", true);
+#ifdef TRACY_ENABLE
 			const auto tracyArgs = "Path: " + path.string();
 			___tracy_get_descs_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 			auto currentSection = SECTION_DESC_NONE;
 
 			const auto descPath = this->dbPath / path / "desc";
@@ -187,8 +192,10 @@ void Pkgs::initDescriptions() {
 
 			{
 				ZoneNamedN(___tracy_get_pkg_repo, "get package repository", true);
+#ifdef TRACY_ENABLE
 				const auto tracyArgs = "pkg: " + pkg.name;
 				___tracy_get_pkg_repo.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 				for (auto [repoId, db] : repos) {
 					auto pkgFound = alpm_db_get_pkg(db, pkg.name.c_str());
 					if (pkgFound) {
@@ -207,8 +214,10 @@ void Pkgs::initDescriptions() {
 		ZoneNamedN(___tracy_fill_deps, "Fill package required by", true);
 		for (auto& pkg : descriptions) {
 			ZoneNamedN(___tracy_get_req_by_pkg, "Complete packages that depend on", true);
+#ifdef TRACY_ENABLE
 			const auto tracyArgs = "Pkg: " + pkg.first;
 			___tracy_get_req_by_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 			for (auto& dep : pkg.second.depends) {
 				if (descriptions.contains(dep))
 					descriptions.at(dep).requiredBy.insert(pkg.first);
@@ -227,8 +236,10 @@ void Pkgs::initFiles() {
 
 	for (const auto& [name, path] : pkgPaths) {
 		ZoneNamedN(___tracy_get_files_pkg, "get package files", true);
+#ifdef TRACY_ENABLE
 		const auto tracyArgs = "Name: " + name;
 		___tracy_get_files_pkg.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 		auto currentSection = SECTION_FILES_NONE;
 
 		const auto filesPath = this->dbPath / path / "files";
@@ -289,8 +300,10 @@ const std::set<std::string> Pkgs::getPackagesNames() {
 
 const std::pair<bool, PackageDescription> Pkgs::getDescriptionForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getDescriptionForPackage");
+#ifdef TRACY_ENABLE
 	const std::string tracyArgs = "Pkg: " + pkg;
 	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 	if (!inited) return {false, {}};
 	if (descriptions.contains(pkg))
 		return {true, descriptions.at(pkg)};
@@ -299,8 +312,10 @@ const std::pair<bool, PackageDescription> Pkgs::getDescriptionForPackage(const s
 }
 const std::set<std::string> Pkgs::getFilesForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getFilesForPackage");
+#ifdef TRACY_ENABLE
 	const std::string tracyArgs = "Pkg: " + pkg;
 	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 	if (!inited) return {};
 	if (files.contains(pkg))
 		return files.at(pkg);
@@ -310,8 +325,10 @@ const std::set<std::string> Pkgs::getFilesForPackage(const std::string& pkg) {
 
 const std::map<std::string, std::string> Pkgs::getBackupFilesForPackage(const std::string& pkg) {
 	ZoneScopedN("Pkgs::getBackupFilesForPackage()");
+#ifdef TRACY_ENABLE
 	const std::string tracyArgs = "Pkg: " + pkg;
 	___tracy_scoped_zone.Text(tracyArgs.c_str(), tracyArgs.length());
+#endif
 	if (!inited) return {};
 	if (backupFiles.contains(pkg))
 		return backupFiles.at(pkg);
