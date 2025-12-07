@@ -35,7 +35,7 @@
 * Open a terminal in the directory of the repo and run the next commands for a release build
 * `meson setup build -Dtracy_enable=false -Dbuildtype=release`
 * `meson compile -C build`
-* `meson install -C build` To install locally using built binary, this also includes:
+* `meson install -C build --skip-subprojects` To install locally using built binary, this also includes:
     * Desktop entry
     * Icons
     * README.md in doc

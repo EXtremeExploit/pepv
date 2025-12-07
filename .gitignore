@@ -2,6 +2,7 @@
 .idea
 
 subprojects/*/
+subprojects/.wraplock
 subprojects/*/**
 compile_commands.json
 build/
