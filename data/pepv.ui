@@ -28,6 +28,8 @@
       <column type="gint64"/>
       <!-- column-name repo -->
       <column type="gchararray"/>
+      <!-- column-name requiredBy -->
+      <column type="gint"/>
     </columns>
   </object>
   <object class="GtkWindow" id="window">
@@ -572,7 +574,7 @@
                       <object class="GtkTreeViewColumn" id="c3">
                         <property name="resizable">True</property>
                         <property name="sizing">fixed</property>
-                        <property name="title" translatable="yes">Num. Deps</property>
+                        <property name="title" translatable="yes">Dependencies</property>
                         <property name="clickable">True</property>
                         <property name="reorderable">True</property>
                         <property name="sort-column-id">3</property>
@@ -644,6 +646,22 @@
                           <object class="GtkCellRendererText" id="cx7"/>
                           <attributes>
                             <attribute name="text">7</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="c8">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="title" translatable="yes">Required By</property>
+                        <property name="clickable">True</property>
+                        <property name="reorderable">True</property>
+                        <property name="sort-column-id">8</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cx8"/>
+                          <attributes>
+                            <attribute name="text">8</attribute>
                           </attributes>
                         </child>
                       </object>

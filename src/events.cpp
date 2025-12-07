@@ -244,6 +244,7 @@ void populatePkgList() {
 						   COL_LIST_SIZE, pkg.size.value_or(0),
 						   COL_LIST_FILES, files,
 						   COL_LIST_REPO, repo.data(),
+						   COL_LIST_REQBY, pkg.requiredBy.size(),
 						   -1);
 		shownCount++;
 		shownSize += pkg.size.value_or(0);

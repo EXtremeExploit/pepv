@@ -16,15 +16,16 @@ int main(int argc, char** argv) {
 
 	constexpr const std::array uiPaths = {
 #ifdef DEBUG
-		"../data/pepv.ui",
+		"../data/" PROJECTNAME ".ui",
+		"./data/" PROJECTNAME ".ui",
 #endif
-		PREFIX "/" DATADIR "/pepv/pepv.ui",
-		"/usr/share/pepv/pepv.ui",
-		"/usr/local/share/pepv/pepv.ui",
-		"/app/share/pepv/pepv.ui",
-		"/app/share/runtime/share/pepv/pepv.ui",
-		"/run/host/user-share/pepv/pepv.ui",
-		"/run/host/share/pepv/pepv.ui",
+		PREFIX "/" DATADIR "/" PROJECTNAME "/" PROJECTNAME ".ui",
+		"/usr/share/" PROJECTNAME "/" PROJECTNAME ".ui",
+		"/usr/local/share/" PROJECTNAME "/" PROJECTNAME ".ui",
+		"/app/share/" PROJECTNAME "/" PROJECTNAME ".ui",
+		"/app/share/runtime/share/" PROJECTNAME "/" PROJECTNAME ".ui",
+		"/run/host/user-share/" PROJECTNAME "/" PROJECTNAME ".ui",
+		"/run/host/share/" PROJECTNAME "/" PROJECTNAME ".ui",
 	};
 
 	for (auto& f : uiPaths) {
